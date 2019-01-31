@@ -3,6 +3,7 @@ import Cocoa
 class AppCenterViewController : NSViewController {
 
   var appCenter: AppCenterDelegate = AppCenterProvider.shared().appCenter!
+  var currentAction = AuthenticationViewController.AuthAction.login
 
   @IBOutlet var installIdLabel : NSTextField?
   @IBOutlet var appSecretLabel : NSTextField?
@@ -12,7 +13,10 @@ class AppCenterViewController : NSViewController {
 
   @IBOutlet weak var deviceIdField: NSTextField!
   @IBOutlet weak var startupModeField: NSComboBox!
-
+    @IBOutlet weak var loginButton: NSButton!
+    @IBOutlet weak var logOutButton: NSButton!
+    
+    
   override func viewDidLoad() {
     super.viewDidLoad()
     installIdLabel?.stringValue = appCenter.installId()
@@ -24,6 +28,8 @@ class AppCenterViewController : NSViewController {
     deviceIdField?.stringValue = AppCenterViewController.getDeviceIdentifier()!
     let indexNumber = UserDefaults.standard.integer(forKey: kMSStartTargetKey)
     startupModeField.selectItem(at: indexNumber)
+    
+    
   }
 
   @IBAction func setEnabled(sender : NSButton) {
@@ -52,5 +58,29 @@ class AppCenterViewController : NSViewController {
     let indexNumber = startupModeField.indexOfItem(withObjectValue: startupModeField.stringValue)
     UserDefaults.standard.set(indexNumber, forKey: kMSStartTargetKey)
   }
+    
+  // Authentication
+    func showSignInController(action: AuthenticationViewController.AuthAction) {
+        currentAction = action
+        self.performSegue(withIdentifier: "ShowSignIn", sender: self)
+        print("0131-4")
+    }
+    @IBAction func loginClicked(_ sender: NSButton) {
+        showSignInController(action: AuthenticationViewController.AuthAction.login)
+        print("0131-2")
+    }
+    @IBAction func signoutClicked(_ sender: NSButton) {
+        showSignInController(action: AuthenticationViewController.AuthAction.signout)
+        print("0131-3")
+    }
+
+    override func prepare(for segue: NSStoryboardSegue, sender: Any?) {
+        if let signInController = segue.destinationController as? AuthenticationViewController {
+            signInController.action = currentAction
+        }
+        print("0131-1")
+    }
+
+    
 
 }
